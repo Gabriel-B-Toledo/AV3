@@ -5,7 +5,6 @@ import { prisma } from "../prisma";
 import { AppError } from "../http";
 import { aeronaveInclude } from "../mappers";
 
-// Rótulos legíveis para os enums, usados apenas na formatação do relatório.
 const TIPO_AERONAVE: Record<string, string> = { COMERCIAL: "Comercial", MILITAR: "Militar" };
 const TIPO_PECA: Record<string, string> = { NACIONAL: "Nacional", IMPORTADA: "Importada" };
 const STATUS_PECA: Record<string, string> = {
@@ -19,8 +18,6 @@ const STATUS_ETAPA: Record<string, string> = {
   CONCLUIDA: "Concluída",
 };
 
-// Gera o relatório final de entrega (espelha Relatorio.gerar da AV1) e o
-// persiste em um arquivo de texto, conforme exigido na CLI.
 export async function gerar(codigo: string, nomeCliente: string, dataEntrega: string) {
   const a = await prisma.aeronave.findUnique({ where: { codigo }, include: aeronaveInclude });
   if (!a) throw new AppError(404, `Aeronave "${codigo}" não encontrada.`);
@@ -97,7 +94,6 @@ export async function gerar(codigo: string, nomeCliente: string, dataEntrega: st
 
   const texto = linhas.join("\n");
 
-  // Persiste em arquivo de texto (requisito da AV1).
   const dir = path.join(process.cwd(), "relatorios");
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   const nomeArquivo = `relatorio_${a.codigo}_${Date.now()}.txt`;

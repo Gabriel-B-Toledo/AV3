@@ -1,8 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
 
-// Carrega o .env localizado na raiz do back-end (funciona tanto rodando de
-// src/ via tsx quanto de dist/ após o build).
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 export const env = {

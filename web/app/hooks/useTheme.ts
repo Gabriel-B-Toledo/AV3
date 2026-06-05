@@ -1,29 +1,40 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 export type Theme = "dark" | "light";
 const THEME_KEY = "aerocode-theme-v2";
 
-export function useTheme(): [Theme, () => void] {
-  const [theme, setTheme] = useState<Theme>("dark");
+function lerTema(): Theme {
+  try {
+    return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
 
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem(THEME_KEY);
-      if (v === "light" || v === "dark") setTheme(v);
-    } catch {}
-  }, []);
+function inscrever(callback: () => void): () => void {
+  window.addEventListener("aerocode:theme", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("aerocode:theme", callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+export function useTheme(): [Theme, () => void] {
+  const theme = useSyncExternalStore(inscrever, lerTema, (): Theme => "dark");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch {}
   }, [theme]);
 
-  const toggle = useCallback(
-    () => setTheme((t) => (t === "dark" ? "light" : "dark")),
-    [],
-  );
+  const toggle = useCallback(() => {
+    const proximo: Theme = lerTema() === "dark" ? "light" : "dark";
+    try {
+      localStorage.setItem(THEME_KEY, proximo);
+    } catch {}
+    window.dispatchEvent(new Event("aerocode:theme"));
+  }, []);
+
   return [theme, toggle];
 }

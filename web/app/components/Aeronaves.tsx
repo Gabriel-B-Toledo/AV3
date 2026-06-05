@@ -31,6 +31,22 @@ import type {
 const acaoPara = (s: StatusEtapa): "iniciar" | "finalizar" | "reabrir" =>
   s === "PENDENTE" ? "iniciar" : s === "ANDAMENTO" ? "finalizar" : "reabrir";
 
+type Bloqueio = { tipo: "iniciar" | "finalizar"; bloqueadora: Etapa };
+
+function bloqueioDe(etapa: Etapa, etapas: Etapa[]): Bloqueio | null {
+  if (etapa.status === "PENDENTE") {
+    const emAndamento = etapas.find((e) => e.status === "ANDAMENTO" && e.id !== etapa.id);
+    if (emAndamento) return { tipo: "iniciar", bloqueadora: emAndamento };
+  }
+  if (etapa.status === "ANDAMENTO") {
+    const anterior = etapas
+      .filter((e) => e.ordem < etapa.ordem && e.status !== "CONCLUIDA")
+      .sort((a, b) => a.ordem - b.ordem)[0];
+    if (anterior) return { tipo: "finalizar", bloqueadora: anterior };
+  }
+  return null;
+}
+
 export function Aeronaves({ data, reload, pushToast, perfil }: PageProps) {
   const [q, setQ] = useState("");
   const [filterTipo, setFilterTipo] = useState<string>("");
@@ -182,19 +198,30 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
   const [openAddPeca, setOpenAddPeca] = useState(false);
   const [openAddTeste, setOpenAddTeste] = useState(false);
   const [openRelatorio, setOpenRelatorio] = useState(false);
+  const [bloqueioInfo, setBloqueioInfo] = useState<{ etapa: Etapa; bloqueio: Bloqueio } | null>(null);
+  const [processandoId, setProcessandoId] = useState<string | null>(null);
 
   const gerir = podeGerir(perfil);
   const operar = podeOperar(perfil);
-  const etapaEmAndamento = aeronave.etapas.find((e) => e.status === "ANDAMENTO");
 
   const toggleEtapaStatus = async (etapa: Etapa) => {
+    if (processandoId) return;
+    setProcessandoId(etapa.id);
     try {
       await api.alterarStatusEtapa(etapa.id, acaoPara(etapa.status));
       await reload();
       pushToast(`Etapa "${etapa.nome}" atualizada.`);
     } catch (e) {
       pushToast(e instanceof Error ? e.message : "Erro ao mudar status da etapa.");
+    } finally {
+      setProcessandoId(null);
     }
+  };
+
+  const acionarEtapa = (etapa: Etapa) => {
+    const bloqueio = bloqueioDe(etapa, aeronave.etapas);
+    if (bloqueio) setBloqueioInfo({ etapa, bloqueio });
+    else toggleEtapaStatus(etapa);
   };
 
   const addEtapa = async (dados: { nome: string; prazo: string; descricao?: string }) => {
@@ -316,16 +343,21 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
               </div>
               <div className="list">
                 {aeronave.etapas.map((e) => {
-                  const bloqueado =
-                    e.status === "PENDENTE" && !!etapaEmAndamento && etapaEmAndamento.id !== e.id;
+                  const bloqueio = bloqueioDe(e, aeronave.etapas);
+                  const processando = processandoId === e.id;
                   return (
                     <div className="row-card" key={e.id}>
                       <div className="meta">
                         <div className="row-title">{e.nome}</div>
                         <div className="row-sub">
                           Prazo: {fmtDate(e.prazo)} · {e.responsaveis.length} resp.
-                          {bloqueado && (
-                            <span className="muted"> · aguardando &quot;{etapaEmAndamento!.nome}&quot;</span>
+                          {bloqueio && (
+                            <span className="muted">
+                              {" · "}
+                              {bloqueio.tipo === "iniciar"
+                                ? `aguardando "${bloqueio.bloqueadora.nome}"`
+                                : `aguardando conclusão de "${bloqueio.bloqueadora.nome}"`}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -334,21 +366,28 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
                         {operar && (
                           <button
                             type="button"
-                            className="btn btn-sm"
-                            disabled={bloqueado}
+                            className={cls("btn btn-sm", bloqueio && "btn-blocked")}
+                            disabled={processando}
+                            aria-disabled={!!bloqueio}
                             title={
-                              bloqueado
-                                ? `Encerre "${etapaEmAndamento!.nome}" antes de iniciar outra etapa.`
+                              bloqueio
+                                ? "Saiba por que esta ação está indisponível"
                                 : e.status === "PENDENTE"
                                 ? "Iniciar"
                                 : e.status === "ANDAMENTO"
                                 ? "Encerrar"
                                 : "Reabrir"
                             }
-                            onClick={() => toggleEtapaStatus(e)}
+                            onClick={() => acionarEtapa(e)}
                           >
                             <Icon name={e.status === "ANDAMENTO" ? "stop" : "play"} size={12} />
-                            {e.status === "PENDENTE" ? "Iniciar" : e.status === "ANDAMENTO" ? "Encerrar" : "Reabrir"}
+                            {processando
+                              ? "Aguarde…"
+                              : e.status === "PENDENTE"
+                              ? "Iniciar"
+                              : e.status === "ANDAMENTO"
+                              ? "Encerrar"
+                              : "Reabrir"}
                           </button>
                         )}
                         <button type="button" className="btn btn-sm" onClick={() => setOpenEtapa(e.id)}>
@@ -404,12 +443,23 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
       {etapaAberta && (
         <EtapaDetail
           etapa={etapaAberta}
-          outraEmAndamento={etapaEmAndamento && etapaEmAndamento.id !== etapaAberta.id ? etapaEmAndamento : null}
+          etapas={aeronave.etapas}
           allFunc={allFunc}
           perfil={perfil}
           reload={reload}
           pushToast={pushToast}
           onClose={() => setOpenEtapa(null)}
+        />
+      )}
+      {bloqueioInfo && (
+        <BloqueioEtapaModal
+          etapa={bloqueioInfo.etapa}
+          bloqueio={bloqueioInfo.bloqueio}
+          onVerBloqueadora={() => {
+            setOpenEtapa(bloqueioInfo.bloqueio.bloqueadora.id);
+            setBloqueioInfo(null);
+          }}
+          onClose={() => setBloqueioInfo(null)}
         />
       )}
       {openAddEtapa && <AddEtapa onClose={() => setOpenAddEtapa(false)} onAdd={addEtapa} />}
@@ -434,7 +484,7 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
 
 interface EtapaDetailProps {
   etapa: Etapa;
-  outraEmAndamento: Etapa | null;
+  etapas: Etapa[];
   allFunc: Funcionario[];
   perfil: NivelPermissao;
   reload: () => Promise<void>;
@@ -442,11 +492,13 @@ interface EtapaDetailProps {
   onClose: () => void;
 }
 
-function EtapaDetail({ etapa, outraEmAndamento, allFunc, perfil, reload, pushToast, onClose }: EtapaDetailProps) {
+function EtapaDetail({ etapa, etapas, allFunc, perfil, reload, pushToast, onClose }: EtapaDetailProps) {
   const [showAddResp, setShowAddResp] = useState(false);
+  const [showBloqueio, setShowBloqueio] = useState(false);
+  const [processando, setProcessando] = useState(false);
   const gerir = podeGerir(perfil);
   const operar = podeOperar(perfil);
-  const bloqueada = etapa.status === "PENDENTE" && !!outraEmAndamento;
+  const bloqueio = bloqueioDe(etapa, etapas);
 
   const removeResp = async (id: string) => {
     try {
@@ -468,12 +520,20 @@ function EtapaDetail({ etapa, outraEmAndamento, allFunc, perfil, reload, pushToa
     }
   };
   const toggle = async () => {
+    if (bloqueio) {
+      setShowBloqueio(true);
+      return;
+    }
+    if (processando) return;
+    setProcessando(true);
     try {
       await api.alterarStatusEtapa(etapa.id, acaoPara(etapa.status));
       await reload();
       pushToast(`Etapa "${etapa.nome}" atualizada.`);
     } catch (e) {
       pushToast(e instanceof Error ? e.message : "Erro ao mudar status.");
+    } finally {
+      setProcessando(false);
     }
   };
 
@@ -539,26 +599,49 @@ function EtapaDetail({ etapa, outraEmAndamento, allFunc, perfil, reload, pushToa
           </div>
         </div>
         <div className="modal-foot">
-          {bloqueada && (
-            <span className="muted" style={{ fontSize: 12, marginRight: "auto" }}>
-              Encerre &quot;{outraEmAndamento!.nome}&quot; antes de iniciar esta etapa.
-            </span>
+          {bloqueio && (
+            <button
+              type="button"
+              className="btn-link-info"
+              style={{ marginRight: "auto" }}
+              onClick={() => setShowBloqueio(true)}
+            >
+              <Icon name="info" size={14} />
+              {bloqueio.tipo === "iniciar"
+                ? "Por que não posso iniciar?"
+                : "Por que não posso finalizar?"}
+            </button>
           )}
           <button type="button" className="btn" onClick={onClose}>Fechar</button>
           {operar && (
             <button
               type="button"
-              className="btn btn-primary"
+              className={cls("btn btn-primary", bloqueio && "btn-blocked")}
               onClick={toggle}
-              disabled={bloqueada}
-              title={bloqueada ? `Encerre "${outraEmAndamento!.nome}" antes de iniciar esta etapa.` : undefined}
+              disabled={processando}
+              aria-disabled={!!bloqueio}
+              title={bloqueio ? "Saiba por que esta ação está indisponível" : undefined}
             >
               <Icon name={etapa.status === "ANDAMENTO" ? "stop" : "play"} size={14} />
-              {etapa.status === "PENDENTE" ? "Iniciar etapa" : etapa.status === "ANDAMENTO" ? "Finalizar etapa" : "Reabrir etapa"}
+              {processando
+                ? "Aguarde…"
+                : etapa.status === "PENDENTE"
+                ? "Iniciar etapa"
+                : etapa.status === "ANDAMENTO"
+                ? "Finalizar etapa"
+                : "Reabrir etapa"}
             </button>
           )}
         </div>
       </div>
+
+      {showBloqueio && bloqueio && (
+        <BloqueioEtapaModal
+          etapa={etapa}
+          bloqueio={bloqueio}
+          onClose={() => setShowBloqueio(false)}
+        />
+      )}
 
       {showAddResp && (
         <div className="scrim" onClick={() => setShowAddResp(false)} style={{ paddingTop: 140 }}>
@@ -600,6 +683,61 @@ function EtapaDetail({ etapa, outraEmAndamento, allFunc, perfil, reload, pushToa
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+interface BloqueioEtapaModalProps {
+  etapa: Etapa;
+  bloqueio: Bloqueio;
+  onVerBloqueadora?: () => void;
+  onClose: () => void;
+}
+
+function BloqueioEtapaModal({ etapa, bloqueio, onVerBloqueadora, onClose }: BloqueioEtapaModalProps) {
+  const iniciar = bloqueio.tipo === "iniciar";
+  const titulo = iniciar ? "Não é possível iniciar agora" : "Não é possível finalizar agora";
+
+  return (
+    <div className="scrim" onClick={onClose} style={{ paddingTop: 160 }}>
+      <div className="modal sm" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div>
+            <div className="eyebrow">Etapa · {etapa.nome}</div>
+            <h2>{titulo}</h2>
+          </div>
+          <button type="button" className="icon-btn" onClick={onClose}><Icon name="close" /></button>
+        </div>
+        <div className="modal-body">
+          <div className="callout">
+            <span className="callout-icon"><Icon name="info" size={18} /></span>
+            <div>
+              {iniciar ? (
+                <>
+                  Cada aeronave executa <b>uma etapa por vez</b>, seguindo a ordem de produção.
+                  A etapa <b>&quot;{bloqueio.bloqueadora.nome}&quot;</b> ainda está em andamento, então
+                  <b> &quot;{etapa.nome}&quot;</b> só poderá começar depois que ela for concluída.
+                </>
+              ) : (
+                <>
+                  As etapas são concluídas <b>na ordem de produção</b>. A etapa anterior
+                  <b> &quot;{bloqueio.bloqueadora.nome}&quot;</b> ainda não foi concluída, então
+                  <b> &quot;{etapa.nome}&quot;</b> não pode ser finalizada antes dela.
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="modal-foot">
+          {onVerBloqueadora && (
+            <button type="button" className="btn" style={{ marginRight: "auto" }} onClick={onVerBloqueadora}>
+              <Icon name="arrow" size={14} />
+              Ir para &quot;{bloqueio.bloqueadora.nome}&quot;
+            </button>
+          )}
+          <button type="button" className="btn btn-primary" onClick={onClose}>Entendi</button>
+        </div>
+      </div>
     </div>
   );
 }

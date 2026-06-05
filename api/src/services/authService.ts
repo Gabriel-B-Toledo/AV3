@@ -4,8 +4,6 @@ import { prisma } from "../prisma";
 import { env } from "../env";
 import { AppError } from "../http";
 
-// Autentica por usuário/senha (espelha Funcionario.autenticar da AV1, mas com
-// senha protegida por hash bcrypt) e emite um token JWT.
 export async function login(usuario: string, senha: string) {
   const funcionario = await prisma.funcionario.findUnique({ where: { usuario } });
   if (!funcionario) throw new AppError(401, "Usuário ou senha inválidos.");

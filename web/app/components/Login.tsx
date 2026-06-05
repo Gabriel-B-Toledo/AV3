@@ -9,11 +9,18 @@ interface LoginProps {
   pushToast: (msg: string) => void;
 }
 
+const USUARIOS_DEMO = [
+  { usuario: "admin", papel: "Administrador" },
+  { usuario: "engineer", papel: "Engenheiro" },
+  { usuario: "operator", papel: "Operador" },
+];
+
 export function Login({ onLogin, pushToast }: LoginProps) {
-  const [u, setU] = useState("gerson");
+  const [u, setU] = useState("admin");
   const [p, setP] = useState("123456");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [showSenha, setShowSenha] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +67,11 @@ export function Login({ onLogin, pushToast }: LoginProps) {
               placeholder="••••••••"
             />
           </div>
+          <div className="lc-forgot">
+            <button type="button" className="btn-link-info" onClick={() => setShowSenha(true)}>
+              Esqueci minha senha
+            </button>
+          </div>
           {erro && (
             <div className="help err" style={{ marginBottom: 10 }}>
               {erro}
@@ -68,11 +80,58 @@ export function Login({ onLogin, pushToast }: LoginProps) {
           <button className="login-btn" type="submit" disabled={carregando}>
             {carregando ? "Entrando…" : "Acessar"}
           </button>
-          <div className="lc-foot">
-            Usuário de teste: <b>gerson</b> · senha <b>123456</b>
-          </div>
         </form>
       </div>
+
+      {showSenha && (
+        <div className="scrim" onClick={() => setShowSenha(false)}>
+          <div className="modal sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <div>
+                <div className="eyebrow">Acesso de demonstração</div>
+                <h2>Esqueci minha senha</h2>
+              </div>
+              <button type="button" className="icon-btn" onClick={() => setShowSenha(false)}>
+                <Icon name="close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="callout">
+                <span className="callout-icon"><Icon name="info" size={18} /></span>
+                <div>
+                  Este é um ambiente de demonstração. A senha é <b>123456</b> para todos os
+                  usuários abaixo.
+                </div>
+              </div>
+              <div className="list">
+                {USUARIOS_DEMO.map((d) => (
+                  <button
+                    type="button"
+                    className="row-card"
+                    key={d.usuario}
+                    onClick={() => {
+                      setU(d.usuario);
+                      setP("123456");
+                      setShowSenha(false);
+                    }}
+                  >
+                    <div className="meta">
+                      <div className="row-title">{d.usuario}</div>
+                      <div className="row-sub">{d.papel}</div>
+                    </div>
+                    <span className="mono">123456</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button type="button" className="btn btn-primary" onClick={() => setShowSenha(false)}>
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

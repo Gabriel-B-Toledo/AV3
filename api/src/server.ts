@@ -16,7 +16,6 @@ const app = express();
 app.use(
   cors({
     origin: env.corsOrigin,
-    // Expõe os headers de medição para o front (relatório de qualidade da AV3).
     exposedHeaders: ["Server-Timing", "X-Processing-Time-Ms"],
   }),
 );
@@ -33,12 +32,10 @@ app.use("/api/pecas", pecaRoutes);
 app.use("/api/funcionarios", funcionarioRoutes);
 app.use("/api/etapas", etapaRoutes);
 
-// Rota não encontrada
 app.use((req: Request, res: Response): void => {
   res.status(404).json({ error: `Rota não encontrada: ${req.method} ${req.path}` });
 });
 
-// Tratamento de erros centralizado
 app.use((err: unknown, _req: Request, res: Response, next: NextFunction): void => {
   if (res.headersSent) {
     next(err);

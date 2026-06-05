@@ -12,10 +12,7 @@ import {
 
 const prisma = new PrismaClient();
 
-// Dados iniciais derivados do protótipo da AV2, convertidos para os enums e
-// regras da AV1. Senha padrão de todos os usuários de teste: "123456".
 async function main() {
-  // Limpa as tabelas respeitando as dependências (FKs).
   await prisma.etapaFuncionario.deleteMany();
   await prisma.aeronavePeca.deleteMany();
   await prisma.teste.deleteMany();
@@ -28,11 +25,10 @@ async function main() {
 
   await prisma.funcionario.createMany({
     data: [
-      { id: "F-001", nome: "Gerson Costa", telefone: "+55 12 99181-2230", endereco: "Rua das Acácias, 220 — São José dos Campos", usuario: "gerson", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
-      { id: "F-002", nome: "Rafael Lima", telefone: "+55 12 99654-1102", endereco: "Av. Brasil, 1430 — Taubaté", usuario: "rlima", senhaHash, nivelPermissao: NivelPermissao.ENGENHEIRO },
-      { id: "F-003", nome: "Carolina Ferreira", telefone: "+55 11 98123-7741", endereco: "Rua Bela Cintra, 88 — São Paulo", usuario: "cferreira", senhaHash, nivelPermissao: NivelPermissao.OPERADOR },
-      { id: "F-004", nome: "João Almeida", telefone: "+55 12 99002-5510", endereco: "Rua Itapeva, 12 — Jacareí", usuario: "jalmeida", senhaHash, nivelPermissao: NivelPermissao.OPERADOR },
-      { id: "F-005", nome: "Beatriz Nogueira", telefone: "+55 11 99771-4002", endereco: "Av. Paulista, 1009 — São Paulo", usuario: "bnogueira", senhaHash, nivelPermissao: NivelPermissao.ENGENHEIRO },
+      { id: "F-067", nome: "Daniel Xereta", telefone: "+55 12 99181-2230", endereco: "Rua das Acácias, 220 — São José dos Campos", usuario: "daniel", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
+      { id: "F-001", nome: "Admin", telefone: "+55 12 99654-1102", endereco: "Av. Brasil, 1430 — Taubaté", usuario: "admin", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
+      { id: "F-002", nome: "Engenheiro", telefone: "+55 11 98123-7741", endereco: "Rua Bela Cintra, 88 — São Paulo", usuario: "engineer", senhaHash, nivelPermissao: NivelPermissao.ENGENHEIRO },
+      { id: "F-003", nome: "Operador", telefone: "+55 12 99002-5510", endereco: "Rua Itapeva, 12 — Jacareí", usuario: "operator", senhaHash, nivelPermissao: NivelPermissao.OPERADOR },
     ],
   });
 
@@ -50,27 +46,23 @@ async function main() {
 
   await prisma.aeronave.createMany({
     data: [
-      { codigo: "AC-21", modelo: "Pelicano", tipo: TipoAeronave.COMERCIAL, capacidade: 12, alcance: 4200, descricao: "Aeronave de carga média projetada para rotas regionais. Configuração padrão com porão pressurizado." },
-      { codigo: "AC-30", modelo: "Albatroz", tipo: TipoAeronave.COMERCIAL, capacidade: 78, alcance: 3100, descricao: "Jato regional para rotas curtas e médias, com alta eficiência de combustível." },
-      { codigo: "AC-08", modelo: "Andorinha", tipo: TipoAeronave.COMERCIAL, capacidade: 2, alcance: 1100, descricao: "Aeronave de treinamento básico, monomotor." },
-      { codigo: "AC-44", modelo: "Tucano X", tipo: TipoAeronave.MILITAR, capacidade: 1, alcance: 2300, descricao: "Aeronave militar de treinamento avançado e ataque leve." },
+      { codigo: "AC-21", modelo: "Pelicano", tipo: TipoAeronave.COMERCIAL, capacidade: 30, alcance: 1750, descricao: "Turboélice bimotor pressurizado para rotas regionais de curta distância. Cabine conversível entre transporte de passageiros e carga, com bom desempenho em pistas curtas e velocidade de cruzeiro de 550 km/h." },
+      { codigo: "AC-30", modelo: "Albatroz", tipo: TipoAeronave.COMERCIAL, capacidade: 88, alcance: 3700, descricao: "Jato regional de corredor único com dois motores turbofan de alta eficiência. Otimizado para rotas curtas e médias, cruzeiro a Mach 0,82 e teto de serviço de 12.500 m." },
+      { codigo: "AC-08", modelo: "Andorinha", tipo: TipoAeronave.COMERCIAL, capacidade: 2, alcance: 1000, descricao: "Monomotor a pistão para treinamento primário, com dois assentos lado a lado, trem de pouso fixo e instrumentação para voo VFR. Velocidade de cruzeiro de 200 km/h." },
+      { codigo: "AC-44", modelo: "Tucano X", tipo: TipoAeronave.MILITAR, capacidade: 2, alcance: 1550, descricao: "Monoturboélice militar de treinamento avançado e ataque leve, com cockpit em tandem para dois tripulantes, assentos ejetáveis, blindagem e cinco pontos de fixação para armamento. Cruzeiro de 520 km/h." },
     ],
   });
 
   await prisma.etapa.createMany({
     data: [
-      // AC-21 — sequência respeitando "uma etapa em andamento por vez"
       { id: "E-100", nome: "Estrutura Central", prazo: "2026-04-15", status: StatusEtapa.CONCLUIDA, ordem: 0, aeronaveId: "AC-21", descricao: "Montagem da estrutura central da fuselagem." },
       { id: "E-101", nome: "Montagem de Asa Direita", prazo: "2026-05-22", status: StatusEtapa.ANDAMENTO, ordem: 1, aeronaveId: "AC-21", descricao: "Acoplamento e fixação da asa direita à fuselagem central, incluindo a passagem do chicote elétrico." },
       { id: "E-117", nome: "Inspeção Estrutural", prazo: "2026-05-30", status: StatusEtapa.PENDENTE, ordem: 2, aeronaveId: "AC-21", descricao: "Inspeção visual e ultrassônica das junções estruturais." },
       { id: "E-118", nome: "Pintura Externa", prazo: "2026-06-20", status: StatusEtapa.PENDENTE, ordem: 3, aeronaveId: "AC-21", descricao: "Aplicação do esquema de pintura padrão." },
-      // AC-30
       { id: "E-200", nome: "Fuselagem", prazo: "2026-03-01", status: StatusEtapa.CONCLUIDA, ordem: 0, aeronaveId: "AC-30", descricao: "Construção da fuselagem completa." },
       { id: "E-204", nome: "Calibração de Aviônicos", prazo: "2026-06-04", status: StatusEtapa.PENDENTE, ordem: 1, aeronaveId: "AC-30", descricao: "Calibração e validação dos sistemas de aviônica." },
       { id: "E-308", nome: "Teste de Pressurização", prazo: "2026-06-12", status: StatusEtapa.PENDENTE, ordem: 2, aeronaveId: "AC-30", descricao: "Validação do sistema de pressurização da cabine." },
-      // AC-08
       { id: "E-501", nome: "Verificação Final", prazo: "2026-05-12", status: StatusEtapa.ANDAMENTO, ordem: 0, aeronaveId: "AC-08", descricao: "Checklist final de pré-entrega." },
-      // AC-44
       { id: "E-601", nome: "Sistema de Armamento", prazo: "2026-07-04", status: StatusEtapa.PENDENTE, ordem: 0, aeronaveId: "AC-44", descricao: "Integração do sistema de armamento e cabos." },
     ],
   });
@@ -104,15 +96,15 @@ async function main() {
   await prisma.etapaFuncionario.createMany({
     data: [
       { etapaId: "E-100", funcionarioId: "F-001" },
-      { etapaId: "E-100", funcionarioId: "F-004" },
-      { etapaId: "E-101", funcionarioId: "F-001" },
+      { etapaId: "E-100", funcionarioId: "F-067" },
       { etapaId: "E-101", funcionarioId: "F-002" },
+      { etapaId: "E-101", funcionarioId: "F-003" },
       { etapaId: "E-117", funcionarioId: "F-003" },
-      { etapaId: "E-200", funcionarioId: "F-002" },
-      { etapaId: "E-204", funcionarioId: "F-002" },
-      { etapaId: "E-308", funcionarioId: "F-005" },
-      { etapaId: "E-501", funcionarioId: "F-003" },
-      { etapaId: "E-501", funcionarioId: "F-004" },
+      { etapaId: "E-200", funcionarioId: "F-003" },
+      { etapaId: "E-204", funcionarioId: "F-003" },
+      { etapaId: "E-308", funcionarioId: "F-003" },
+      { etapaId: "E-501", funcionarioId: "F-001" },
+      { etapaId: "E-501", funcionarioId: "F-067" },
       { etapaId: "E-601", funcionarioId: "F-002" },
     ],
   });

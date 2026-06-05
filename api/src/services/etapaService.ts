@@ -12,7 +12,6 @@ export async function criar(
   const aeronave = await prisma.aeronave.findUnique({ where: { codigo: aeronaveCodigo } });
   if (!aeronave) throw new AppError(404, `Aeronave "${aeronaveCodigo}" não encontrada.`);
 
-  // A ordem reflete a posição na sequência de produção da aeronave.
   const ordem = await prisma.etapa.count({ where: { aeronaveId: aeronaveCodigo } });
 
   await prisma.etapa.create({
@@ -28,9 +27,6 @@ export async function criar(
   });
 }
 
-// Regras de transição da AV1 (Etapa.iniciar / Etapa.finalizar):
-// - só inicia se estiver PENDENTE e não houver outra ANDAMENTO na mesma aeronave;
-// - só finaliza se estiver ANDAMENTO e todas as etapas anteriores estiverem CONCLUIDA.
 export async function alterarStatus(etapaId: string, acao: AcaoEtapa) {
   const etapa = await prisma.etapa.findUnique({ where: { id: etapaId } });
   if (!etapa) throw new AppError(404, "Etapa não encontrada.");
@@ -74,14 +70,12 @@ export async function alterarStatus(etapaId: string, acao: AcaoEtapa) {
     return;
   }
 
-  // reabrir
   if (etapa.status !== StatusEtapa.CONCLUIDA) {
     throw new AppError(409, `A etapa "${etapa.nome}" não está concluída.`);
   }
   await prisma.etapa.update({ where: { id: etapaId }, data: { status: StatusEtapa.PENDENTE } });
 }
 
-// Regra AV1: associar funcionário a etapa sem duplicidade.
 export async function associarResponsavel(etapaId: string, funcionarioId: string) {
   const [etapa, funcionario] = await Promise.all([
     prisma.etapa.findUnique({ where: { id: etapaId } }),

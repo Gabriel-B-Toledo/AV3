@@ -1,5 +1,3 @@
-// Cliente REST do front-end: centraliza as chamadas à API, injeta o token JWT
-// e guarda a sessão no localStorage.
 import type {
   Aeronave,
   DataState,
@@ -55,7 +53,6 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    // Sessão expirada/inválida: encerra a sessão e avisa a aplicação.
     if (res.status === 401 && !path.includes("/auth/login")) {
       logout();
       if (typeof window !== "undefined") {
@@ -68,8 +65,6 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return data as T;
 }
 
-// -------- Autenticação --------
-
 export async function login(usuario: string, senha: string): Promise<Usuario> {
   const res = await request<{ token: string; usuario: Usuario }>("POST", "/api/auth/login", {
     usuario,
@@ -79,8 +74,6 @@ export async function login(usuario: string, senha: string): Promise<Usuario> {
   return res.usuario;
 }
 
-// -------- Carga inicial --------
-
 export async function fetchAll(): Promise<DataState> {
   const [aeronaves, pecas, funcionarios] = await Promise.all([
     request<Aeronave[]>("GET", "/api/aeronaves"),
@@ -89,8 +82,6 @@ export async function fetchAll(): Promise<DataState> {
   ]);
   return { aeronaves, pecas, funcionarios };
 }
-
-// -------- Aeronaves --------
 
 export interface NovaAeronave {
   codigo: string;
@@ -125,16 +116,12 @@ export const gerarRelatorio = (codigo: string, nomeCliente: string, dataEntrega:
     dataEntrega,
   });
 
-// -------- Etapas --------
-
 export const alterarStatusEtapa = (id: string, acao: "iniciar" | "finalizar" | "reabrir") =>
   request<{ ok: true }>("PATCH", `/api/etapas/${id}/status`, { acao });
 export const associarResponsavel = (id: string, funcionarioId: string) =>
   request<{ ok: true }>("POST", `/api/etapas/${id}/responsaveis`, { funcionarioId });
 export const removerResponsavel = (id: string, funcId: string) =>
   request<void>("DELETE", `/api/etapas/${id}/responsaveis/${funcId}`);
-
-// -------- Peças --------
 
 export interface NovaPeca {
   id: string;
@@ -147,8 +134,6 @@ export interface NovaPeca {
 export const criarPeca = (dados: NovaPeca) => request<Peca>("POST", "/api/pecas", dados);
 export const atualizarStatusPeca = (id: string, status: StatusPeca) =>
   request<Peca>("PATCH", `/api/pecas/${id}/status`, { status });
-
-// -------- Funcionários --------
 
 export interface NovoFuncionario {
   id: string;

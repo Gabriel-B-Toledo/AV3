@@ -1,8 +1,5 @@
 import { Prisma } from "@prisma/client";
 
-// Define quais relações são carregadas e padroniza o formato JSON devolvido ao
-// front-end (achatando as tabelas de junção).
-
 export const aeronaveInclude = {
   pecas: { include: { peca: true } },
   etapas: { include: { responsaveis: { include: { funcionario: true } } } },

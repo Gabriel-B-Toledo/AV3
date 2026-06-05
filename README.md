@@ -1,4 +1,4 @@
-# ✈️ Aerocode
+#  Aerocode
 
 **Sistema web para gestão da produção de aeronaves.** Cadastro de aeronaves, peças, etapas de
 montagem, testes e equipe — com login, controle de acesso por cargo e dados persistidos em banco.
@@ -11,15 +11,9 @@ montagem, testes e equipe — com login, controle de acesso por cargo e dados pe
 ![Prisma](https://img.shields.io/badge/Prisma_6-2D3748?style=flat-square&logo=prisma&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL_8-4479A1?style=flat-square&logo=mysql&logoColor=white)
 
-> Projeto da disciplina, em três etapas: **AV1** definiu o domínio e as regras numa aplicação de
-> linha de comando, a **AV2** desenhou a interface, e esta **AV3** une as duas numa aplicação web
-> completa — front-end React conversando com uma API REST em Node.js e banco MySQL.
-
 ---
 
-## 🚀 Como rodar
-
-São três coisas para subir: o **banco**, a **API** e o **front-end**. Leva uns 5 minutos.
+##  Como rodar
 
 ### Pré-requisitos
 
@@ -40,10 +34,6 @@ GRANT ALL PRIVILEGES ON aerocode.* TO 'aerocode'@'localhost';
 GRANT ALL PRIVILEGES ON aerocode_shadow.* TO 'aerocode'@'localhost';
 FLUSH PRIVILEGES;
 ```
-
-> 💡 No Windows, o cliente do MySQL costuma ficar em
-> `C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe`. No Linux, use `sudo mysql`.
-> O banco `aerocode_shadow` é exigido pelo Prisma e não armazena nada — pode ignorá-lo.
 
 ### 2. API (`api/`)
 
@@ -76,13 +66,11 @@ npm run dev                # abre em http://localhost:3000
 
 A senha de todos é **`123456`**.
 
-| Usuário      | Cargo           | O que pode fazer                                          |
-| ------------ | --------------- | -------------------------------------------------------- |
-| `gerson`     | Administrador   | Tudo, incluindo cadastrar funcionários                   |
-| `rlima`      | Engenheiro      | Aeronaves, peças, etapas, testes e relatórios            |
-| `cferreira`  | Operador        | Atualizar status de peças/etapas e consultar dados       |
-
-> Há outros usuários no seed (`bnogueira` – engenheiro, `jalmeida` – operador), todos com a mesma senha.
+| Usuário     | Cargo           | O que pode fazer                                          |
+| ----------- | --------------- | -------------------------------------------------------- |
+| `admin`     | Administrador   | Tudo, incluindo cadastrar funcionários                   |
+| `engineer`  | Engenheiro      | Aeronaves, peças, etapas, testes e relatórios            |
+| `operator`  | Operador        | Atualizar status de peças/etapas e consultar dados       |
 
 ---
 
@@ -101,26 +89,12 @@ flowchart LR
 
 ```
 AV3/
-├── api/                 # Back-end (Express + Prisma + MySQL)
-│   ├── prisma/          #   schema do banco e seed
-│   └── src/             #   rotas, services e middlewares
-├── web/                 # Front-end (Next.js / React)
-└── docs/                # Enunciados (AV1–AV3) e relatório do projeto
+├── api/       
+│   ├── prisma/     
+│   └── src/        
+├── web/          
+└── docs/
 ```
-
----
-
-## 📋 Regras de negócio
-
-As mesmas regras definidas na AV1, agora validadas no servidor:
-
-- **Código de aeronave único** — cadastro duplicado é recusado.
-- **Etapas em sequência** — só uma etapa fica *em andamento* por vez, e uma etapa só é concluída
-  depois que todas as anteriores terminaram.
-- **Responsáveis sem repetição** — o mesmo funcionário não entra duas vezes na mesma etapa.
-- **Acesso por cargo** — Administrador, Engenheiro e Operador enxergam ações diferentes.
-- **Testes** dos tipos elétrico, hidráulico e aerodinâmico, com resultado aprovado/reprovado.
-- **Relatório de entrega** gerado por aeronave e salvo em `api/relatorios/`.
 
 ---
 

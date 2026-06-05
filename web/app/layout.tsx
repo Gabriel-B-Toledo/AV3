@@ -22,5 +22,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-// Açaí com leite em pó

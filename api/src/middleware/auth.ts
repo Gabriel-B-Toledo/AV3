@@ -5,13 +5,12 @@ import { env } from "../env";
 import { AppError } from "../http";
 
 export interface AuthPayload {
-  sub: string; // id do funcionário
+  sub: string;
   usuario: string;
   nome: string;
   nivel: NivelPermissao;
 }
 
-// Disponibiliza req.user de forma tipada em toda a aplicação.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -21,7 +20,6 @@ declare global {
   }
 }
 
-// Exige um token JWT válido no header Authorization: Bearer <token>.
 export function autenticar(req: Request, _res: Response, next: NextFunction): void {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
@@ -36,7 +34,6 @@ export function autenticar(req: Request, _res: Response, next: NextFunction): vo
   }
 }
 
-// Restringe a rota aos níveis de permissão informados (autorização da AV1).
 export function exigirNivel(...niveis: NivelPermissao[]) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) throw new AppError(401, "Autenticação necessária.");

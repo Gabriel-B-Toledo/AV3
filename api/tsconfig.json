@@ -4,8 +4,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["ES2021"],
-    "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -13,8 +11,9 @@
     "resolveJsonModule": true,
     "declaration": false,
     "sourceMap": true,
+    "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "bench/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

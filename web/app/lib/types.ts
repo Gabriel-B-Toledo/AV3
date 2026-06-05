@@ -1,5 +1,3 @@
-// Tipos do front-end, alinhados ao contrato da API (enums idênticos à AV1).
-
 export type TipoAeronave = "COMERCIAL" | "MILITAR";
 export type TipoPeca = "NACIONAL" | "IMPORTADA";
 export type StatusPeca = "EM_PRODUCAO" | "EM_TRANSPORTE" | "PRONTA";
@@ -89,7 +87,6 @@ export interface Toast {
   msg: string;
 }
 
-// Props comuns às páginas de gestão (consomem a API e recarregam os dados).
 export interface PageProps {
   data: DataState;
   reload: () => Promise<void>;

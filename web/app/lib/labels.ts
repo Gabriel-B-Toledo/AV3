@@ -1,6 +1,3 @@
-// Conversão dos enums canônicos (iguais à AV1) para rótulos amigáveis em
-// português, usados apenas na apresentação. O dado persistido continua sendo
-// o enum.
 import type {
   TipoAeronave,
   TipoPeca,
@@ -44,7 +41,6 @@ export const RESULTADO_LABEL: Record<ResultadoTeste, string> = {
   REPROVADO: "Reprovado",
 };
 
-// Classe de cor do StatusPill associada a cada valor de enum.
 export const TONE: Record<string, string> = {
   CONCLUIDA: "pill-ok",
   ANDAMENTO: "pill-info",
@@ -56,7 +52,6 @@ export const TONE: Record<string, string> = {
   REPROVADO: "pill-danger",
 };
 
-// Gera a lista de opções (valor + rótulo) de um mapa de rótulos, para <select>.
 export function opcoes<T extends string>(mapa: Record<T, string>): Array<{ value: T; label: string }> {
   return (Object.keys(mapa) as T[]).map((value) => ({ value, label: mapa[value] }));
 }

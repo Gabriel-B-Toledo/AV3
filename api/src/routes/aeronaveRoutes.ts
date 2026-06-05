@@ -12,8 +12,6 @@ const GESTAO = [NivelPermissao.ADMINISTRADOR, NivelPermissao.ENGENHEIRO] as cons
 
 router.use(autenticar);
 
-// -------- CRUD da aeronave --------
-
 router.get(
   "/",
   asyncHandler(async (_req, res) => {
@@ -66,8 +64,6 @@ router.delete(
   }),
 );
 
-// -------- Peças vinculadas --------
-
 const vincularPecaSchema = z.object({ pecaId: z.string().min(1) });
 
 router.post(
@@ -86,8 +82,6 @@ router.delete(
     res.json(await aeronaveService.desvincularPeca(req.params.codigo, req.params.pecaId));
   }),
 );
-
-// -------- Testes --------
 
 const testeSchema = z.object({
   tipo: z.nativeEnum(TipoTeste),
@@ -111,8 +105,6 @@ router.delete(
   }),
 );
 
-// -------- Etapas --------
-
 const etapaSchema = z.object({
   nome: z.string().min(1),
   prazo: z.string().min(1),
@@ -128,8 +120,6 @@ router.post(
     res.status(201).json(await aeronaveService.obter(req.params.codigo));
   }),
 );
-
-// -------- Relatório final --------
 
 const relatorioSchema = z.object({
   nomeCliente: z.string().min(1, "Informe o nome do cliente."),

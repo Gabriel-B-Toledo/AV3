@@ -23,7 +23,6 @@ export async function criar(dados: DadosPeca) {
   return mapPeca(peca);
 }
 
-// Regra AV1: acompanhar a evolução do status da peça até a utilização.
 export async function atualizarStatus(id: string, status: StatusPeca) {
   const peca = await prisma.peca.findUnique({ where: { id } });
   if (!peca) throw new AppError(404, `Peça "${id}" não encontrada.`);

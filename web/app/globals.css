@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-/* ==========================================================
-   THEME TOKENS — switched via [data-theme="dark"|"light"] on <html>
-   Defaults to dark; overridden by [data-theme="light"].
-   ========================================================== */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
@@ -130,7 +126,6 @@ textarea {
   font-size: 14px;
 }
 
-/* App chrome */
 .topbar {
   height: 56px;
   background: var(--topbar-bg);
@@ -252,7 +247,6 @@ textarea {
   transform: rotate(15deg);
 }
 
-/* Page */
 .page {
   max-width: 1200px;
   margin: 0 auto;
@@ -278,7 +272,6 @@ textarea {
   margin-top: 4px;
 }
 
-/* Toolbar */
 .toolbar {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -359,8 +352,47 @@ textarea {
   border-radius: 8px;
   font-size: 12.5px;
 }
+.btn-blocked {
+  opacity: 0.55;
+  cursor: help;
+}
+.btn-blocked:hover {
+  opacity: 0.75;
+}
+.btn-link-info {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--info);
+  font-size: 12.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.btn-link-info:hover {
+  text-decoration: underline;
+}
 
-/* Filters drawer */
+.callout {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--info-bg);
+  border: 1px solid var(--line);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.callout-icon {
+  color: var(--info);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: inline-flex;
+}
+
 .filters {
   display: flex;
   gap: 8px;
@@ -395,7 +427,6 @@ textarea {
   background: var(--chip-active-hover);
 }
 
-/* Table */
 .table-wrap {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -453,7 +484,6 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-/* Status pill */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -495,14 +525,12 @@ tbody tr:hover {
   color: var(--danger);
 }
 
-/* Empty state */
 .empty {
   padding: 36px;
   text-align: center;
   color: var(--muted);
 }
 
-/* Modal / drawer */
 .scrim {
   position: fixed;
   inset: 0;
@@ -620,7 +648,6 @@ tbody tr:hover {
   font-weight: 700;
 }
 
-/* Detail layout */
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -714,7 +741,6 @@ button.row-card {
   width: 100%;
 }
 
-/* Forms */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -773,14 +799,45 @@ button.row-card {
   grid-column: 1 / -1;
 }
 
-/* Login + landing */
 .login-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: calc(100vh - 56px);
   display: grid;
   grid-template-columns: 1.05fr 1fr;
   gap: 0;
-  background: radial-gradient(1200px 600px at -10% -20%, var(--login-grad-1) 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 110%, var(--login-grad-2) 0%, transparent 55%), var(--bg);
+  background: #0a1220;
+}
+.login-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: url("/login-bg.jpg") center / cover no-repeat;
+  filter: blur(7px) saturate(1.15) brightness(0.9);
+  transform: scale(1.1);
+  will-change: transform;
+}
+.login-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    rgba(7, 13, 24, 0.86) 0%,
+    rgba(7, 13, 24, 0.6) 45%,
+    rgba(7, 13, 24, 0.32) 100%
+  );
+}
+@media (max-width: 880px) {
+  .login-shell::before {
+    filter: blur(4px) saturate(1.15) brightness(0.85);
+  }
+  .login-shell::after {
+    background: rgba(7, 13, 24, 0.78);
+  }
 }
 @media (max-width: 880px) {
   .login-shell {
@@ -804,6 +861,8 @@ button.row-card {
   line-height: 1.02;
   margin: 0 0 18px;
   letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 @media (max-width: 640px) {
   .login-pitch h1 {
@@ -813,7 +872,7 @@ button.row-card {
 .login-pitch p {
   margin: 0 0 28px;
   font-size: 16px;
-  color: var(--ink-2);
+  color: rgba(255, 255, 255, 0.82);
   max-width: 460px;
   line-height: 1.5;
 }
@@ -822,7 +881,7 @@ button.row-card {
   flex-direction: column;
   gap: 10px;
   max-width: 460px;
-  color: var(--ink-2);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 13.5px;
 }
 .login-feats > div {
@@ -854,11 +913,18 @@ button.row-card {
 .login-card {
   width: 100%;
   max-width: 380px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
   border-radius: 18px;
   padding: 28px;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.55);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .login-card {
+    background: var(--surface);
+  }
 }
 .login-card h2 {
   margin: 0 0 4px;
@@ -887,6 +953,11 @@ button.row-card {
 .login-card .login-btn:hover {
   background: var(--primary-600);
 }
+.login-card .lc-forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin: 2px 0 12px;
+}
 .login-card .lc-foot {
   text-align: center;
   font-size: 12.5px;
@@ -899,7 +970,6 @@ button.row-card {
   font-weight: 600;
 }
 
-/* Home cards */
 .home-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1013,7 +1083,6 @@ button.row-card {
   margin-top: 2px;
 }
 
-/* Stage progress */
 .stage-bar {
   display: flex;
   gap: 4px;
@@ -1031,7 +1100,6 @@ button.row-card {
   background: var(--ok);
 }
 
-/* Misc */
 .hr {
   height: 1px;
   background: var(--line);
@@ -1099,7 +1167,6 @@ button.row-card {
   color: var(--ink);
 }
 
-/* Toast */
 .toast-wrap {
   position: fixed;
   bottom: 20px;
@@ -1121,7 +1188,6 @@ button.row-card {
   border: 1px solid var(--line);
 }
 
-/* Responsive: page chrome on small screens */
 @media (max-width: 640px) {
   .topbar {
     padding: 0 14px;

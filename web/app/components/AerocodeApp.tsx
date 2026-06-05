@@ -21,13 +21,12 @@ export function AerocodeApp() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [theme, toggleTheme] = useTheme();
 
-  // Restaura a sessão salva (token + usuário) ao montar.
   useEffect(() => {
     const salvo = api.getUsuarioSalvo();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (salvo) setUser(salvo);
   }, []);
 
-  // Sessão expirada/inválida (401): volta para a tela de login.
   useEffect(() => {
     const onUnauth = () => {
       setUser(null);
@@ -44,16 +43,17 @@ export function AerocodeApp() {
   }, []);
 
   const reload = useCallback(async () => {
-    setErro(null);
     try {
-      setData(await api.fetchAll());
+      const dados = await api.fetchAll();
+      setData(dados);
+      setErro(null);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao carregar os dados.");
     }
   }, []);
 
-  // Carrega os dados sempre que houver um usuário autenticado.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user) void reload();
   }, [user, reload]);
 

@@ -13,7 +13,6 @@ router.use(autenticar);
 
 const statusSchema = z.object({ acao: z.enum(["iniciar", "finalizar", "reabrir"]) });
 
-// Operador também pode movimentar etapas (chão de fábrica).
 router.patch(
   "/:id/status",
   exigirNivel(...COM_OPERADOR),

@@ -32,7 +32,6 @@ export async function obter(codigo: string) {
 }
 
 export async function criar(dados: DadosAeronave) {
-  // Regra AV1: o código da aeronave deve ser único.
   const existente = await prisma.aeronave.findUnique({ where: { codigo: dados.codigo } });
   if (existente) {
     throw new AppError(409, `Já existe uma aeronave com o código "${dados.codigo}".`);

@@ -26,7 +26,6 @@ const criarSchema = z.object({
   nivelPermissao: z.nativeEnum(NivelPermissao),
 });
 
-// CRUD de funcionários é restrito ao administrador (controle de acesso da AV1).
 router.post(
   "/",
   exigirNivel(NivelPermissao.ADMINISTRADOR),
@@ -57,7 +56,6 @@ router.delete(
   "/:id",
   exigirNivel(NivelPermissao.ADMINISTRADOR),
   asyncHandler(async (req, res) => {
-    // Evita que o administrador exclua a própria conta e perca o acesso.
     if (req.user?.sub === req.params.id) {
       throw new AppError(400, "Você não pode excluir o próprio usuário.");
     }
