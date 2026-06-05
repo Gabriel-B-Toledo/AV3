@@ -1,0 +1,156 @@
+// Schema Prisma — Aerocode (AV3)
+// Modela o domínio definido na CLI (AV1): aeronaves, peças, etapas, testes e
+// funcionários, com os mesmos enums e regras de negócio.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// ===================== Enumerações (idênticas à AV1) =====================
+
+enum TipoAeronave {
+  COMERCIAL
+  MILITAR
+}
+
+enum TipoPeca {
+  NACIONAL
+  IMPORTADA
+}
+
+enum StatusPeca {
+  EM_PRODUCAO
+  EM_TRANSPORTE
+  PRONTA
+}
+
+enum StatusEtapa {
+  PENDENTE
+  ANDAMENTO
+  CONCLUIDA
+}
+
+enum NivelPermissao {
+  ADMINISTRADOR
+  ENGENHEIRO
+  OPERADOR
+}
+
+enum TipoTeste {
+  ELETRICO
+  HIDRAULICO
+  AERODINAMICO
+}
+
+enum ResultadoTeste {
+  APROVADO
+  REPROVADO
+}
+
+// ============================= Modelos ==================================
+
+model Funcionario {
+  id             String         @id
+  nome           String
+  telefone       String
+  endereco       String
+  usuario        String         @unique
+  senhaHash      String
+  nivelPermissao NivelPermissao
+  criadoEm       DateTime       @default(now())
+
+  // Etapas em que o funcionário é responsável
+  etapas EtapaFuncionario[]
+
+  @@map("funcionarios")
+}
+
+model Aeronave {
+  codigo     String       @id
+  modelo     String
+  tipo       TipoAeronave
+  capacidade Int
+  alcance    Int
+  descricao  String?      @db.Text
+  criadoEm   DateTime     @default(now())
+
+  pecas  AeronavePeca[]
+  etapas Etapa[]
+  testes Teste[]
+
+  @@map("aeronaves")
+}
+
+model Peca {
+  id         String     @id
+  nome       String
+  tipo       TipoPeca
+  fornecedor String
+  status     StatusPeca @default(EM_PRODUCAO)
+  criadoEm   DateTime   @default(now())
+
+  // Catálogo global: uma peça pode estar vinculada a várias aeronaves
+  aeronaves AeronavePeca[]
+
+  @@map("pecas")
+}
+
+model Etapa {
+  id         String      @id
+  nome       String
+  prazo      String
+  status     StatusEtapa @default(PENDENTE)
+  ordem      Int         @default(0) // define a sequência lógica das etapas
+  descricao  String?     @db.Text
+  aeronaveId String
+  aeronave   Aeronave    @relation(fields: [aeronaveId], references: [codigo], onDelete: Cascade)
+
+  responsaveis EtapaFuncionario[]
+
+  @@index([aeronaveId])
+  @@map("etapas")
+}
+
+model Teste {
+  id         String         @id @default(uuid())
+  tipo       TipoTeste
+  resultado  ResultadoTeste
+  aeronaveId String
+  aeronave   Aeronave       @relation(fields: [aeronaveId], references: [codigo], onDelete: Cascade)
+  criadoEm   DateTime       @default(now())
+
+  @@index([aeronaveId])
+  @@map("testes")
+}
+
+// ===================== Tabelas de junção (N:N) ==========================
+
+// Aeronave <-> Peça. A chave composta impede vincular a mesma peça duas vezes.
+model AeronavePeca {
+  aeronaveId String
+  pecaId     String
+  aeronave   Aeronave @relation(fields: [aeronaveId], references: [codigo], onDelete: Cascade)
+  peca       Peca     @relation(fields: [pecaId], references: [id], onDelete: Cascade)
+
+  @@id([aeronaveId, pecaId])
+  @@index([pecaId])
+  @@map("aeronave_pecas")
+}
+
+// Etapa <-> Funcionário (responsáveis). A chave composta impede duplicidade.
+model EtapaFuncionario {
+  etapaId       String
+  funcionarioId String
+  etapa         Etapa       @relation(fields: [etapaId], references: [id], onDelete: Cascade)
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+
+  @@id([etapaId, funcionarioId])
+  @@index([funcionarioId])
+  @@map("etapa_funcionarios")
+}
