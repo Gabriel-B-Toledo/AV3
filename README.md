@@ -1,66 +1,50 @@
-# ✈️ Aerocode
+# Aerocode ✈️
 
-**Sistema web para gestão da produção de aeronaves.** Cadastro de aeronaves, peças, etapas de
-montagem, testes e equipe - com login, controle de acesso por cargo e dados persistidos em banco.
+Sistema web para gerenciar a produção de aeronaves: cadastro de aeronaves, peças, etapas de montagem, testes e equipe responsável, com login e controle de acesso por cargo. Os dados ficam persistidos em banco.
 
-![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js_18+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![Express](https://img.shields.io/badge/Express_4-000000?style=flat-square&logo=express&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma_6-2D3748?style=flat-square&logo=prisma&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL_8-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+Stack: Next.js 16 + React 19 no front, Express 4 + Prisma 6 na API (tudo em TypeScript) e MySQL 8 no banco. Pode rodar com Docker ou localmente, como preferir.
 
----
+## Como rodar
 
-## 🚀 Como rodar
-
-Dá pra subir o projeto de **duas formas**. A mais rápida é com **Docker** - um comando sobe banco,
-API e front de uma vez. Se preferir não usar Docker, há o **passo a passo manual** logo abaixo.
-
-Primeiro, clone o repositório:
+Antes de qualquer coisa, clone o repositório:
 
 ```bash
 git clone https://github.com/Gabriel-B-Toledo/AV3.git
 cd AV3
 ```
 
-> Funciona em Windows e Linux - os comandos são os mesmos nos dois.
+Os comandos são iguais no Windows e no Linux. A partir daqui, escolha um dos dois caminhos abaixo — se tiver Docker, recomendo por ele, dá bem menos trabalho.
 
-### 🐳 Opção A - Docker (recomendado)
+### Opção A — Docker
 
-Único pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (no Linux,
-Docker Engine + plugin Compose). Não precisa instalar Node nem MySQL.
+Só precisa do [Docker Desktop](https://www.docker.com/products/docker-desktop/) (no Linux, Docker Engine com o plugin do Compose). Não é necessário ter Node nem MySQL na máquina.
 
 ```bash
-cp .env.example .env          # Windows (PowerShell): Copy-Item .env.example .env
+cp .env.example .env          # no PowerShell: Copy-Item .env.example .env
 docker compose up -d --build
 ```
 
-**Pronto.** O Compose sobe **banco + API + front**, aplica as migrations e popula o seed
-automaticamente. A primeira execução demora um pouco (build das imagens); nas próximas é rápido.
+Isso sobe banco, API e front de uma vez, roda as migrations e popula o seed. A primeira execução demora um pouco por causa do build das imagens; as seguintes são rápidas.
 
-- 🌐 Front: **http://localhost:3000**
-- ❤️ Saúde da API: **http://localhost:4000/api/health**
+- Front: http://localhost:3000
+- Health da API: http://localhost:4000/api/health
 
 Comandos úteis:
 
 ```bash
-docker compose logs -f        # acompanha os logs
-docker compose down           # para tudo (mantém o banco)
-docker compose down -v        # para tudo e apaga o banco (reset completo)
+docker compose logs -f        # acompanhar os logs
+docker compose down           # parar tudo (o banco continua)
+docker compose down -v        # parar tudo e apagar o banco
 ```
 
-### 🔧 Opção B - Manual (sem Docker)
+### Opção B — Manual
 
 Pré-requisitos:
 
-- [Node.js 18+](https://nodejs.org) (testado no Node 24)
-- [MySQL 8](https://dev.mysql.com/downloads/) instalado e em execução
+- [Node.js 18+](https://nodejs.org) (testei no 24)
+- [MySQL 8](https://dev.mysql.com/downloads/) rodando
 
-**1. Banco de dados** — conecte no MySQL como `root` e rode o script abaixo. Ele cria o banco e o
-usuário que a aplicação usa:
+**1. Banco.** Conecte no MySQL como `root` e rode o script abaixo — ele cria os dois bancos e o usuário da aplicação:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS aerocode CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -71,20 +55,20 @@ GRANT ALL PRIVILEGES ON aerocode_shadow.* TO 'aerocode'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-**2. API (`api/`)**
+**2. API.** Dentro de `api/`:
 
 ```bash
 cd api
-cp .env.example .env          # Windows (PowerShell): Copy-Item .env.example .env
+cp .env.example .env          # no PowerShell: Copy-Item .env.example .env
 npm install
 npm run migrate               # cria as tabelas
 npm run seed                  # popula com dados de exemplo
 npm run dev                   # sobe a API em http://localhost:4000
 ```
 
-O `.env.example` já vem com as credenciais do passo 1 - se você não mudou nada no script, funciona direto.
+O `.env.example` já vem com as credenciais do passo 1, então se você não alterou o script funciona direto.
 
-**3. Front-end (`web/`)** — em **outro terminal**:
+**3. Front.** Em outro terminal, dentro de `web/`:
 
 ```bash
 cd web
@@ -92,13 +76,11 @@ npm install
 npm run dev                   # abre em http://localhost:3000
 ```
 
-**Pronto.** Acesse **http://localhost:3000** e entre com um dos usuários abaixo. 🎉
+Feito isso, acesse http://localhost:3000 e entre com um dos usuários da próxima seção.
 
----
+## Usuários de teste
 
-## 🔑 Acessos de teste
-
-A senha de todos é **`123456`**.
+A senha é `123456` pra todos.
 
 | Usuário     | Cargo           | O que pode fazer                                          |
 | ----------- | --------------- | -------------------------------------------------------- |
@@ -106,77 +88,44 @@ A senha de todos é **`123456`**.
 | `engineer`  | Engenheiro      | Aeronaves, peças, etapas, testes e relatórios            |
 | `operator`  | Operador        | Atualizar status de peças/etapas e consultar dados       |
 
----
-
-## 🛟 Problemas comuns
+## Se algo der errado
 
 <details>
-<summary><strong>A porta 3306 já está em uso / o banco não sobe</strong></summary>
+<summary>Alguma porta (3306, 3000 ou 4000) já está em uso</summary>
 
-Acontece quando você já tem um **MySQL local** ocupando a 3306 na mesma máquina do Docker. No `.env`,
-mude só a porta do **host** - internamente o container continua na 3306:
+Ajuste as portas do host no `.env` antes de subir o Docker e rode `docker compose up -d` de novo:
 
 ```env
 DB_PORT=3307
-```
-
-Depois rode `docker compose up -d` de novo. (No setup manual o problema não existe, porque a API
-fala direto com o seu MySQL local.)
-</details>
-
-<details>
-<summary><strong>As portas 3000 ou 4000 já estão ocupadas</strong></summary>
-
-Ajuste no `.env` antes de subir o Docker:
-
-```env
 API_PORT=4001
 WEB_PORT=3001
 ```
 
-No setup manual, pare o processo que está usando a porta ou rode a API com outra (`PORT=4001` no `api/.env`).
+No modo manual, pare o processo que está usando a porta ou suba a API em outra (`PORT=4001` no `api/.env`).
 </details>
 
 <details>
-<summary><strong>Mudei o código e o Docker não atualizou</strong></summary>
+<summary>Mudei o código e o Docker não pegou a alteração</summary>
 
-As imagens são construídas uma vez. Para reconstruir com o código novo:
-
-```bash
-docker compose up -d --build
-```
+As imagens são buildadas uma vez só. Para reconstruir com o código novo, rode `docker compose up -d --build`. Para zerar o banco junto, use `docker compose down -v` antes.
 </details>
 
 <details>
-<summary><strong>Quero zerar o banco e começar do zero</strong></summary>
+<summary>(Manual) o `npm run migrate` reclama do shadow database</summary>
 
-```bash
-docker compose down -v        # apaga o volume do banco
-docker compose up -d --build  # recria, migra e popula o seed de novo
-```
+O Prisma usa o banco `aerocode_shadow` durante o `migrate dev`. Confira se você criou esse banco e deu o `GRANT` para o usuário `aerocode` no passo 1.
 </details>
 
-<details>
-<summary><strong>(Manual) `npm run migrate` reclama do shadow database</strong></summary>
-
-O Prisma usa o banco `aerocode_shadow` durante o `migrate dev`. Confirme que você criou esse banco
-e deu o `GRANT` para o usuário `aerocode` no **passo 1**.
-</details>
-
----
-
-## 🧱 Arquitetura
+## Como o projeto está organizado
 
 ```mermaid
 flowchart LR
-    U([Navegador]) --> W["web/ - Next.js + React<br/>porta 3000"]
-    W -- "HTTP / REST (JSON)" --> A["api/ - Express + Prisma<br/>porta 4000"]
+    U([Navegador]) --> W["web/ — Next.js + React<br/>porta 3000"]
+    W -- "HTTP / REST (JSON)" --> A["api/ — Express + Prisma<br/>porta 4000"]
     A -- "SQL" --> DB[("MySQL<br/>porta 3306")]
 ```
 
-- **`web/`** - interface em Next.js / React. Telas de login, aeronaves, peças e funcionários.
-- **`api/`** - API REST em Express + TypeScript. Autenticação por **JWT**, autorização por cargo,
-  regras de negócio nos *services* e acesso ao banco via **Prisma ORM**.
+O `web/` é a interface em Next.js/React — telas de login, aeronaves, peças e funcionários. O `api/` é a API REST em Express + TypeScript: a autenticação é por JWT, a autorização é por cargo, as regras de negócio ficam nos *services* e o acesso ao banco passa pelo Prisma.
 
 ```
 AV3/
@@ -185,40 +134,6 @@ AV3/
 │   └── src/            # rotas, services e middlewares
 ├── web/                # front-end (Next.js + React)
 ├── docs/               # enunciados e relatórios
-├── docker-compose.yml  # sobe banco + API + front
+├── docker-compose.yml  # sobe banco + API + front em multi containers
 └── .env.example        # variáveis usadas pelo Compose
 ```
-
----
-
-## 🔌 API
-
-A API roda em `http://localhost:4000`. Para conferir se está no ar: `GET /api/health`.
-Toda rota (exceto o login) espera o header `Authorization: Bearer <token>`.
-
-<details>
-<summary><strong>Ver principais endpoints</strong></summary>
-
-| Método  | Rota                               | Descrição                          |
-| ------- | ---------------------------------- | ---------------------------------- |
-| `POST`  | `/api/auth/login`                  | Autentica e retorna o token JWT    |
-| `GET`   | `/api/aeronaves`                   | Lista as aeronaves                 |
-| `POST`  | `/api/aeronaves`                   | Cadastra uma aeronave              |
-| `POST`  | `/api/aeronaves/:codigo/pecas`     | Vincula uma peça à aeronave        |
-| `POST`  | `/api/aeronaves/:codigo/etapas`    | Cria uma etapa de montagem         |
-| `POST`  | `/api/aeronaves/:codigo/testes`    | Registra um teste                  |
-| `POST`  | `/api/aeronaves/:codigo/relatorio` | Gera o relatório de entrega        |
-| `PATCH` | `/api/etapas/:id/status`           | Inicia, finaliza ou reabre a etapa |
-| `POST`  | `/api/etapas/:id/responsaveis`     | Associa um responsável à etapa     |
-| `GET`   | `/api/pecas` · `/api/funcionarios` | Catálogo de peças e equipe         |
-
-</details>
-
-> Cada resposta inclui o header `Server-Timing` com o tempo de processamento, usado na análise
-> de desempenho do projeto.
-
----
-
-## 📄 Documentação
-
-Os enunciados de cada etapa e o relatório do projeto estão em [`docs/`](docs/).
