@@ -119,7 +119,7 @@ export function Home({ data, onNav, user }: HomeProps) {
           <hr className="hr" style={{ margin: "14px 0" }} />
           <h3 style={{ marginTop: 0 }}>Sobre o Aerocode</h3>
           <div className="muted" style={{ fontSize: 12.5, lineHeight: 1.5 }}>
-            Plataforma interna para acompanhamento da linha de produção de aeronaves — etapas, peças,
+            Plataforma interna para acompanhamento da linha de produção de aeronaves - etapas, peças,
             testes e equipes em um só lugar.
           </div>
         </div>

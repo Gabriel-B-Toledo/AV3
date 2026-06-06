@@ -1,0 +1,49 @@
+# rode o compose igual está descrito no readme
+
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-aerocode}
+      MYSQL_USER: ${MYSQL_USER:-aerocode}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-aerocode}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER:-aerocode}", "-p${MYSQL_PASSWORD:-aerocode}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql://${MYSQL_USER:-aerocode}:${MYSQL_PASSWORD:-aerocode}@db:3306/${MYSQL_DATABASE:-aerocode}"
+      JWT_SECRET: ${JWT_SECRET:-troque_este_segredo}
+      PORT: "4000"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    ports:
+      - "${API_PORT:-4000}:4000"
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+volumes:
+  db_data:

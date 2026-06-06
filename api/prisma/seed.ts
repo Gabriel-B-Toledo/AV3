@@ -25,10 +25,10 @@ async function main() {
 
   await prisma.funcionario.createMany({
     data: [
-      { id: "F-067", nome: "Gerson", telefone: "+55 12 99181-2230", endereco: "Rua das Acácias, 220 — São José dos Campos", usuario: "gerson", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
-      { id: "F-001", nome: "Admin", telefone: "+55 12 99654-1102", endereco: "Av. Brasil, 1430 — Taubaté", usuario: "admin", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
-      { id: "F-002", nome: "Engenheiro", telefone: "+55 11 98123-7741", endereco: "Rua Bela Cintra, 88 — São Paulo", usuario: "engineer", senhaHash, nivelPermissao: NivelPermissao.ENGENHEIRO },
-      { id: "F-003", nome: "Operador", telefone: "+55 12 99002-5510", endereco: "Rua Itapeva, 12 — Jacareí", usuario: "operator", senhaHash, nivelPermissao: NivelPermissao.OPERADOR },
+      { id: "F-067", nome: "Gerson", telefone: "+55 12 99181-2230", endereco: "Rua das Acácias, 220 - São José dos Campos", usuario: "gerson", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
+      { id: "F-001", nome: "Admin", telefone: "+55 12 99654-1102", endereco: "Av. Brasil, 1430 - Taubaté", usuario: "admin", senhaHash, nivelPermissao: NivelPermissao.ADMINISTRADOR },
+      { id: "F-002", nome: "Engenheiro", telefone: "+55 11 98123-7741", endereco: "Rua Bela Cintra, 88 - São Paulo", usuario: "engineer", senhaHash, nivelPermissao: NivelPermissao.ENGENHEIRO },
+      { id: "F-003", nome: "Operador", telefone: "+55 12 99002-5510", endereco: "Rua Itapeva, 12 - Jacareí", usuario: "operator", senhaHash, nivelPermissao: NivelPermissao.OPERADOR },
     ],
   });
 
@@ -109,7 +109,7 @@ async function main() {
     ],
   });
 
-  console.log("✔ Seed concluído com sucesso.");
+  console.log("Seed concluído com sucesso.");
 }
 
 main()

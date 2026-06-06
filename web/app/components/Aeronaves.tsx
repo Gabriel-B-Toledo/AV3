@@ -297,7 +297,7 @@ function AeronaveDetail({ aeronave, allFunc, allPecas, perfil, reload, pushToast
                 <dt>Tipo</dt><dd>{TIPO_AERONAVE_LABEL[aeronave.tipo]}</dd>
                 <dt>Capacidade</dt><dd>{aeronave.capacidade}</dd>
                 <dt>Alcance</dt><dd>{aeronave.alcance} km</dd>
-                <dt>Descrição</dt><dd>{aeronave.descricao || "—"}</dd>
+                <dt>Descrição</dt><dd>{aeronave.descricao || "-"}</dd>
               </dl>
               <hr className="hr" style={{ margin: "18px 0" }} />
               <div className="section-h">
@@ -567,7 +567,7 @@ function EtapaDetail({ etapa, etapas, allFunc, perfil, reload, pushToast, onClos
                   </span>
                 )}
               </dd>
-              <dt>Descrição</dt><dd>{etapa.descricao || "—"}</dd>
+              <dt>Descrição</dt><dd>{etapa.descricao || "-"}</dd>
             </dl>
           </div>
           <div>

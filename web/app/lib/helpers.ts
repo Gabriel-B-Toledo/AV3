@@ -5,7 +5,7 @@ export const initials = (n = ""): string =>
   n.trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
 export const fmtDate = (iso: string): string => {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso);
   return d
     .toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })

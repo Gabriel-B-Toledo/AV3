@@ -30,8 +30,8 @@ export async function gerar(codigo: string, nomeCliente: string, dataEntrega: st
   linhas.push("           AEROCODE - RELATÓRIO DE ENTREGA");
   linhas.push(sep);
   linhas.push(`Data de emissão : ${new Date().toLocaleString("pt-BR")}`);
-  linhas.push(`Data de entrega : ${dataEntrega || "—"}`);
-  linhas.push(`Cliente         : ${nomeCliente || "—"}`);
+  linhas.push(`Data de entrega : ${dataEntrega || "-"}`);
+  linhas.push(`Cliente         : ${nomeCliente || "-"}`);
   linhas.push(sepMin);
 
   linhas.push("AERONAVE");

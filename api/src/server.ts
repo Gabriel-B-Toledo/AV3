@@ -1,5 +1,6 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
 import { env } from "./env";
@@ -13,13 +14,14 @@ import etapaRoutes from "./routes/etapaRoutes";
 
 const app = express();
 
+app.use(helmet());
 app.use(
   cors({
     origin: env.corsOrigin,
     exposedHeaders: ["Server-Timing", "X-Processing-Time-Ms"],
   }),
 );
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 app.use(metrics);
 
 app.get("/api/health", (_req: Request, res: Response): void => {
@@ -64,5 +66,5 @@ app.use((err: unknown, _req: Request, res: Response, next: NextFunction): void =
 });
 
 app.listen(env.port, () => {
-  console.log(`✈  API Aerocode rodando em http://localhost:${env.port}`);
+  console.log(`API rodando em http://localhost:${env.port}`);
 });

@@ -318,7 +318,7 @@ function CadastrarFuncionario({ onClose, onCreate, existingIds }: CadastrarFunci
               <input
                 value={f.endereco}
                 onChange={(ev) => set("endereco", ev.target.value)}
-                placeholder="Rua, número — cidade"
+                placeholder="Rua, número - cidade"
               />
               {errors.endereco && <span className="help err">{errors.endereco}</span>}
             </div>

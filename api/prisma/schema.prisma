@@ -1,4 +1,4 @@
-// Schema Prisma — Aerocode (AV3)
+// Schema Prisma - Aerocode (AV3)
 // Modela o domínio definido na CLI (AV1): aeronaves, peças, etapas, testes e
 // funcionários, com os mesmos enums e regras de negócio.
 

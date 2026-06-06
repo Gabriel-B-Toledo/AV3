@@ -42,7 +42,7 @@ export function Login({ onLogin, pushToast }: LoginProps) {
       <div className="login-pitch">
         <div className="pre">Gestão de produção</div>
         <h1>Aeronaves prontas no prazo, peça por peça.</h1>
-        <p>Acompanhe etapas, peças e equipes em um só painel — do projeto ao voo de homologação.</p>
+        <p>Acompanhe etapas, peças e equipes em um só painel - do projeto ao voo de homologação.</p>
         <div className="login-feats">
           <div><Icon name="check" /> Linha de montagem em tempo real</div>
           <div><Icon name="check" /> Inventário de peças e fornecedores</div>

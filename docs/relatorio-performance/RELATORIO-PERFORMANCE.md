@@ -1,10 +1,10 @@
-# Relatório de Qualidade — Aerocode
+# Relatório de Qualidade - Aerocode
 
 > Gerado automaticamente por `npm run bench` em 05/06/2026, 19:12:19.
 
 Este relatório apresenta a análise de desempenho da aplicação web Aerocode, conforme
-exigido na AV3. São medidas três métricas — **latência**, **tempo de processamento** e
-**tempo de resposta** — sob carga escalada de **1, 5 e 10 usuários simultâneos**. A
+exigido na AV3. São medidas três métricas - **latência**, **tempo de processamento** e
+**tempo de resposta** - sob carga escalada de **1, 5 e 10 usuários simultâneos**. A
 unidade de todas as medições é o **milissegundo (ms)**.
 
 ## Como as métricas foram obtidas
@@ -12,14 +12,14 @@ unidade de todas as medições é o **milissegundo (ms)**.
 O benchmark (`api/bench/run.ts`) atua como cliente HTTP e dispara requisições reais
 contra a API (`/api/aeronaves`), autenticado via JWT. Para cada requisição:
 
-- **Tempo de resposta** — medido no cliente com `performance.now()` imediatamente antes
+- **Tempo de resposta** - medido no cliente com `performance.now()` imediatamente antes
   do `fetch` e logo após o corpo da resposta ser totalmente recebido. É o tempo total
   percebido pelo usuário.
-- **Tempo de processamento** — medido no servidor pelo middleware `metrics`
+- **Tempo de processamento** - medido no servidor pelo middleware `metrics`
   (`api/src/middleware/metrics.ts`), que cronometra o handler com
   `process.hrtime.bigint()` e expõe o valor nos headers `X-Processing-Time-Ms` e
   `Server-Timing`. O cliente apenas lê esse header.
-- **Latência** — calculada como `tempo de resposta − tempo de processamento`,
+- **Latência** - calculada como `tempo de resposta - tempo de processamento`,
   representando o tempo gasto no trajeto de rede (ida e volta), conforme a Figura 1 do
   enunciado.
 
