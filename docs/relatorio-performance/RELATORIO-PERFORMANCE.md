@@ -1,58 +1,68 @@
 # Relatório de Qualidade - Aerocode
 
-> Gerado automaticamente por `npm run bench` em 05/06/2026, 19:12:19.
+## Como as medições foram feitas
 
-Este relatório apresenta a análise de desempenho da aplicação web Aerocode, conforme
-exigido na AV3. São medidas três métricas - **latência**, **tempo de processamento** e
-**tempo de resposta** - sob carga escalada de **1, 5 e 10 usuários simultâneos**. A
-unidade de todas as medições é o **milissegundo (ms)**.
+Em vez de estimar, instrumentamos a própria aplicação e medimos requisições reais.
 
-## Como as métricas foram obtidas
+No servidor, um middleware dedicado ([`metrics.ts`](../../api/src/middleware/metrics.ts))
+cronometra cada requisição com `process.hrtime.bigint()` e devolve o tempo de
+processamento no cabeçalho `Server-Timing` de toda resposta.
 
-O benchmark (`api/bench/run.ts`) atua como cliente HTTP e dispara requisições reais
-contra a API (`/api/aeronaves`), autenticado via JWT. Para cada requisição:
+Do lado do cliente, um pequeno gerador de carga ([`run.ts`](../../api/bench/run.ts)) faz o
+papel do usuário: autentica-se via JWT e dispara chamadas reais ao endpoint
+`/api/aeronaves`. Para cada chamada ele mede o tempo de resposta com `performance.now()`
+— do envio até o corpo chegar por inteiro — e lê o tempo de processamento no cabeçalho. A
+**latência** é o que sobra: tempo de resposta menos tempo de processamento.
 
-- **Tempo de resposta** - medido no cliente com `performance.now()` imediatamente antes
-  do `fetch` e logo após o corpo da resposta ser totalmente recebido. É o tempo total
-  percebido pelo usuário.
-- **Tempo de processamento** - medido no servidor pelo middleware `metrics`
-  (`api/src/middleware/metrics.ts`), que cronometra o handler com
-  `process.hrtime.bigint()` e expõe o valor nos headers `X-Processing-Time-Ms` e
-  `Server-Timing`. O cliente apenas lê esse header.
-- **Latência** - calculada como `tempo de resposta - tempo de processamento`,
-  representando o tempo gasto no trajeto de rede (ida e volta), conforme a Figura 1 do
-  enunciado.
+Cada gráfico mostra os três cenários de carga lado a lado — **1, 5 e 10 usuários
+simultâneos** —, usando a média das medições de cada cenário. Assim dá para enxergar de
+relance como cada métrica se comporta à medida que a concorrência aumenta.
 
-A carga de N usuários é simulada com **N trabalhadores concorrentes** (`Promise.all`),
-cada um executando 30 requisições em sequência, após uma fase de
-aquecimento de 5 requisições por usuário (descartada). Os gráficos usam a
-**média** de cada métrica; a tabela traz também o percentil 95 (p95).
-
-## Resultados
-
-| Usuários | Amostras | Latência (média / p95) | Processamento (média / p95) | Resposta (média / p95) |
-| --- | --- | --- | --- | --- |
-| 1 | 30 | 0.66 / 0.95 ms | 2.14 / 2.52 ms | 2.80 / 3.36 ms |
-| 5 | 150 | 1.07 / 2.51 ms | 3.18 / 4.74 ms | 4.25 / 6.97 ms |
-| 10 | 300 | 2.00 / 3.43 ms | 3.98 / 5.48 ms | 5.99 / 8.61 ms |
+## Os gráficos
 
 ### Latência
 
 ![Latência por número de usuários](latencia.png)
 
+Mostra o custo de rede em cada cenário. Como cresce pouco entre 1 e 10 usuários, o
+transporte não é o gargalo do sistema. (Veja a ressalva mais abaixo: nos testes, cliente e
+servidor estavam na mesma máquina, então esse valor é naturalmente baixo.)
+
 ### Tempo de processamento
 
 ![Tempo de processamento por número de usuários](processamento.png)
+
+Mostra quanto o servidor realmente trabalha por requisição. É a parte sob nosso controle —
+código, consultas ao banco — e o que mais influencia a experiência. O crescimento suave com
+mais usuários indica que a aplicação tem folga para a carga esperada.
 
 ### Tempo de resposta
 
 ![Tempo de resposta por número de usuários](resposta.png)
 
-## Observações
+É a soma das duas métricas anteriores e o número mais próximo do que o usuário sente. Por
+acompanhar de perto o tempo de processamento, confirma que, havendo um gargalo, ele estará
+no trabalho do servidor e não na rede.
 
-- Cliente e servidor executados na mesma máquina tendem a apresentar **latência de rede
-  muito baixa**, já que não há trânsito por roteadores externos; o tempo de resposta é
-  dominado pelo processamento. Para observar latências maiores, execute o benchmark com
-  `BENCH_BASE_URL` apontando para a API hospedada em outra máquina/rede.
-- Parâmetros configuráveis por variáveis de ambiente: `BENCH_BASE_URL`, `BENCH_USER`,
-  `BENCH_PASS`, `BENCH_ENDPOINT`, `BENCH_LEVELS`, `BENCH_REQUESTS`, `BENCH_WARMUP`.
+Nestes testes, cliente e servidor rodaram na mesma máquina, então os dados quase não
+trafegam pela rede e a latência medida é mínima — é o melhor cenário possível, não o mais
+realista. Para reproduzir uma condição próxima à de produção, basta apontar o cliente para
+uma API hospedada em outro host antes de regenerar os gráficos:
+
+```bash
+BENCH_BASE_URL=http://<host-da-api>:4000 npm run bench
+```
+
+## Como atualizar os gráficos
+
+Com a API no ar e o banco já populado (`npm run seed`):
+
+```bash
+cd api
+npm run bench
+```
+
+O comando refaz as medições e regenera os três gráficos (`latencia.png`,
+`processamento.png` e `resposta.png`) nesta pasta, prontos para análise. O número de
+usuários, de requisições e o endpoint podem ser ajustados por variáveis de ambiente
+(`BENCH_LEVELS`, `BENCH_REQUESTS`, `BENCH_WARMUP`, `BENCH_ENDPOINT`, `BENCH_BASE_URL`).
